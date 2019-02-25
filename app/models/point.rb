@@ -12,7 +12,7 @@ class Point
   def self.mongoize(object)
     case object
     when nil then nil
-    when Hash then { type: 'Point', coordinates: object[:coordinates] }
+    when Hash then object.slice(:type, :coordinates)
     when Point then object.mongoize
     end
   end
