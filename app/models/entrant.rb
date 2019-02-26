@@ -7,5 +7,10 @@ class Entrant
   field :o, as: :overall, type: Placing
   field :gender, type: Placing
   field :group, type: Placing
-  embeds_many :results, class_name: 'LegResult', order: [:"event.o".asc]
+  embeds_many :results, class_name: 'LegResult', order: [:"event.o".asc],\
+                        after_add: :update_total
+
+  def update_total(_result)
+    self.secs = results.reduce(0) { |sum, res| sum + res.secs }
+  end
 end
