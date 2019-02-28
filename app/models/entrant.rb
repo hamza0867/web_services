@@ -11,6 +11,8 @@ class Entrant
                         after_add: :update_total
   embeds_one :race, class_name: 'RaceRef', autobuild: true
   embeds_one :racer, as: :parent, class_name: 'RacerInfo', autobuild: true
+  scope :upcoming, -> { where("race.date.gte": Date.current) }
+  scope :past, -> { where("race.date.lt": Date.current) }
 
   delegate :first_name, :first_name=, to: :racer
   delegate :last_name, :last_name=, to: :racer
