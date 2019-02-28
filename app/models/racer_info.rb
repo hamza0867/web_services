@@ -12,4 +12,14 @@ class RacerInfo
   validates_inclusion_of :gender, in: %w[M F], message: 'must be M or F'
   validates_numericality_of :birth_year, less_than: Date.today.year,\
                                          message: 'must in past'
+  %w[city state].each do |action|
+    define_method(action.to_s) do
+      residence ? residence.send(action.to_s) : nil
+    end
+    define_method("#{action}=") do |name|
+      object = self.residence ||= Address.new
+      object.send("#{action}=", name)
+      self.residence = object
+    end
+  end
 end

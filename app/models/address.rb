@@ -1,9 +1,9 @@
 class Address
   attr_accessor :city, :state, :location
-  def initialize(city, state, location)
-    @city = city
-    @state = state
-    @location = location
+  def initialize(city = nil, state = nil, location = nil)
+    @city = city unless city.nil?
+    @state = state unless state.nil?
+    @location = location unless location.nil?
   end
 
   def mongoize
