@@ -4,6 +4,10 @@ module Api
     before_action :set_race, only: %i[show update destroy]
     protect_from_forgery with: :null_session
 
+    rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
+      render plain: "woops: cannot find race[#{params[:id]}]", status: :not_found
+    end
+
     # GET /api/races
     def index
       if !request.accept || request.accept == '*/*'
