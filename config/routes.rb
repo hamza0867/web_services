@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   # RMM level 2 API routes
   namespace :api do
-    resources :races, only: %i[index show] do
+    resources :races, only: %i[index show create] do
       get 'results' => 'races#results'
       get 'results/:id' => 'races#results_detail'
     end
