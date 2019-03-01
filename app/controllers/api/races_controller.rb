@@ -1,7 +1,7 @@
 module Api
   # Races Controller of the API
   class RacesController < ApplicationController
-    before_action :set_race, only: %i[show update]
+    before_action :set_race, only: %i[show update destroy]
     protect_from_forgery with: :null_session
 
     # GET /api/races
@@ -38,9 +38,15 @@ module Api
       end
     end
 
-    # PATCH/PUT /races/1
+    # PATCH,PUT /races/1
     def update
       render json: @race if @race.update_attributes(race_params)
+    end
+
+    # DELETE /races/1
+    def destroy
+      @race.destroy
+      render nothing: true, status: :no_content
     end
 
     # GET /api/races/1/results
