@@ -19,7 +19,7 @@ module Api
 
     def results
       if !request.accept || request.accept == '*/*'
-        render plain: "/api/races/#{params[:id]}/results"
+        render plain: "/api/races/#{params[:race_id]}/results"
       else
         # real implementation ...
       end
