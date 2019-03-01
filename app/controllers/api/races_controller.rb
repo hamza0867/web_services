@@ -1,7 +1,7 @@
 module Api
   # Races Controller of the API
   class RacesController < ApplicationController
-    before_action :set_race, only: %i[show]
+    before_action :set_race, only: %i[show update]
     protect_from_forgery with: :null_session
 
     # GET /api/races
@@ -23,6 +23,26 @@ module Api
       end
     end
 
+    # POST /api/races
+    def create
+      if !request.accept || request.accept == '*/*'
+        render plain: (params[:race][:name]).to_s, status: :ok,\
+               content_type: 'text/plain'
+      else
+        @race = Race.new(race_params)
+        if @race.save
+          render plain: @race.name, status: :created
+        else
+          render json: @race.errors, status: :unprocessable_entity
+        end
+      end
+    end
+
+    # PATCH/PUT /races/1
+    def update
+      render json: @race if @race.update_attributes(race_params)
+    end
+
     # GET /api/races/1/results
     def results
       if !request.accept || request.accept == '*/*'
@@ -38,21 +58,6 @@ module Api
         render plain: "/api/races/#{params[:race_id]}/results/#{params[:id]}"
       else
         # real implementation ...
-      end
-    end
-
-    # POST /api/races
-    def create
-      if !request.accept || request.accept == '*/*'
-        render plain: (params[:race][:name]).to_s, status: :ok,\
-               content_type: 'text/plain'
-      else
-        @race = Race.new(race_params)
-        if @race.save
-          render plain: @race.name, status: :created
-        else
-          render json: @race.errors, status: :unprocessable_entity
-        end
       end
     end
 
