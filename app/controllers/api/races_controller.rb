@@ -43,7 +43,7 @@ module Api
     # POST /api/races
     def create
       if !request.accept || request.accept == '*/*'
-        render plain: :nothing, status: :ok
+        render plain: (params[:race][:name]).to_s, status: :ok, content_type: 'text/plain'
       else
         # real implementation
       end
