@@ -45,8 +45,20 @@ module Api
       if !request.accept || request.accept == '*/*'
         render plain: (params[:race][:name]).to_s, status: :ok, content_type: 'text/plain'
       else
-        # real implementation
+        @race = Race.new(race_params)
+        if @race.save
+          render plain: @race.name, status: :created
+        else
+          render json: @race.errors, status: :unprocessable_entity
+        end
       end
+    end
+
+    private
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def race_params
+      params.require(:race).permit(:name, :date, :city, :state, :swim_distance, :swim_units, :bike_distance, :bike_units, :run_distance, :run_units)
     end
   end
 end
