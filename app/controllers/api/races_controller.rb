@@ -6,7 +6,8 @@ module Api
     # GET /api/races
     def index
       if !request.accept || request.accept == '*/*'
-        render plain: '/api/races'
+        render plain: "/api/races, offset=[#{params[:offset]}],"\
+          " limit=[#{params[:limit]}]"
       else
         # real implementation ...
       end
