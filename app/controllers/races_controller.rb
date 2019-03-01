@@ -9,7 +9,10 @@ class RacesController < ApplicationController
 
   # GET /races/1
   # GET /races/1.json
-  def show; end
+  def show
+    @entrants = @race.entrants.order_by(secs: :asc, last_name: :asc,\
+                                        first_name: :asc)
+  end
 
   # GET /races/new
   def new
