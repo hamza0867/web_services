@@ -5,7 +5,9 @@ module Api
     protect_from_forgery with: :null_session
 
     rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
-      render plain: "woops: cannot find race[#{params[:id]}]", status: :not_found
+      render status: :not_found,
+             template: 'api/error_msg',
+             locals: { msg: "woops: cannot find race[#{params[:id]}]" }
     end
 
     # GET /api/races
@@ -23,7 +25,7 @@ module Api
       if !request.accept || request.accept == '*/*'
         render plain: "/api/races/#{params[:id]}"
       else
-        render json: @race
+        render race
       end
     end
 
@@ -80,6 +82,15 @@ module Api
     # Never trust parameters from the scary internet, only allow the white list through.
     def race_params
       params.require(:race).permit(:name, :date, :city, :state, :swim_distance, :swim_units, :bike_distance, :bike_units, :run_distance, :run_units)
+    end
+
+    def race
+      case request.accept
+      when 'application/json'
+        { json: @race, status: :ok }
+      when 'application/xml'
+        { action: :show }
+      end
     end
   end
 end
