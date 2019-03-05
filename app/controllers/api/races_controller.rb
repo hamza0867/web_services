@@ -2,6 +2,7 @@ module Api
   # Races Controller of the API
   class RacesController < ApplicationController
     before_action :set_race, only: %i[show update destroy]
+    before_action :set_result, only: %i[results_detail]
     protect_from_forgery with: :null_session
 
     rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
@@ -75,7 +76,7 @@ module Api
       if !request.accept || request.accept == '*/*'
         render plain: "/api/races/#{params[:race_id]}/results/#{params[:id]}"
       else
-        # real implementation ...
+        render partial: 'result', object: @result
       end
     end
 
@@ -85,12 +86,20 @@ module Api
       @race = Race.find(params[:id])
     end
 
+    def set_result
+      @result = Race.find(params[:race_id]).entrants.where(id: params[:id]).first
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def race_params
       params.require(:race).permit(:name, :date, :city, :state, :swim_distance, :swim_units, :bike_distance, :bike_units, :run_distance, :run_units)
     end
 
     def error_template
+      # This is crucial. Otherwise it wouldn't work.
+      # Rails will call some default template
+      # instead of the desired one. So we need to force
+      # Rails to render the right template
       if request.accept == 'application/json'
         'api/races/error_msg.json.jbuilder'
       else
