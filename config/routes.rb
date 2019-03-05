@@ -2,12 +2,10 @@ Rails.application.routes.draw do
   # RMM level 2 API routes
   namespace :api do
     resources :races, only: %i[index show create update destroy] do
-      get 'results' => 'races#results'
-      get 'results/:id' => 'races#results_detail'
+      resources :results
     end
     resources :racers, only: %i[index show] do
-      get 'entries' => 'racers#entries'
-      get 'entries/:id' => 'racers#entries_detail'
+      resources :entries
     end
   end
   # End of RMM level 2 API routes

@@ -2,8 +2,6 @@ module Api
   # Races Controller of the API
   class RacesController < ApplicationController
     before_action :set_race, only: %i[show update destroy]
-    before_action :set_result, only: %i[results_detail]
-    protect_from_forgery with: :null_session
 
     rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
       render status: :not_found,
@@ -62,32 +60,10 @@ module Api
       render nothing: true, status: :no_content
     end
 
-    # GET /api/races/1/results
-    def results
-      if !request.accept || request.accept == '*/*'
-        render plain: "/api/races/#{params[:race_id]}/results"
-      else
-        # real implementation ...
-      end
-    end
-
-    # GET /api/races/1/results/1
-    def results_detail
-      if !request.accept || request.accept == '*/*'
-        render plain: "/api/races/#{params[:race_id]}/results/#{params[:id]}"
-      else
-        render partial: 'result', object: @result
-      end
-    end
-
     private
 
     def set_race
       @race = Race.find(params[:id])
-    end
-
-    def set_result
-      @result = Race.find(params[:race_id]).entrants.where(id: params[:id]).first
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
