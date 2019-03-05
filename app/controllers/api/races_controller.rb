@@ -6,8 +6,14 @@ module Api
 
     rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
       render status: :not_found,
-             template: 'api/error_msg',
+             template: error_template,
              locals: { msg: "woops: cannot find race[#{params[:id]}]" }
+    end
+
+    rescue_from ActionView::MissingTemplate do |exception|
+      Rails.logger.debug exception
+      render plain: "woops: we do not support that content-type[#{request.accept}]",
+             status: :unsupported_media_type
     end
 
     # GET /api/races
@@ -25,7 +31,7 @@ module Api
       if !request.accept || request.accept == '*/*'
         render plain: "/api/races/#{params[:id]}"
       else
-        render race
+        render :show
       end
     end
 
@@ -84,12 +90,11 @@ module Api
       params.require(:race).permit(:name, :date, :city, :state, :swim_distance, :swim_units, :bike_distance, :bike_units, :run_distance, :run_units)
     end
 
-    def race
-      case request.accept
-      when 'application/json'
-        { json: @race, status: :ok }
-      when 'application/xml'
-        { action: :show }
+    def error_template
+      if request.accept == 'application/json'
+        'api/races/error_msg.json.jbuilder'
+      else
+        'api/races/error_msg'
       end
     end
   end
