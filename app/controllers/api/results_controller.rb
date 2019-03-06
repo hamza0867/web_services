@@ -1,5 +1,6 @@
 module Api
   class ResultsController < ApplicationController
+    before_action :set_race
     before_action :set_entrants, only: %i[index]
     before_action :set_result, only: %i[show update]
 
@@ -8,16 +9,16 @@ module Api
       if !request.accept || request.accept == '*/*'
         render plain: "/api/races/#{params[:race_id]}/results"
       else
-        fresh_when last_modified: @entrants.max(:updated_at)
+        @entrants
       end
-        end
+    end
 
     # GET /api/races/1/result/1
     def show
       if !request.accept || request.accept == '*/*'
         render plain: api_race_result_path(params[:race_id], params[:id])
       else
-        render partial: 'result', object: @result
+        render partial: 'result', object: @result, as: 'result'
       end
     end
 
@@ -53,13 +54,16 @@ module Api
 
     private
 
+    def set_race
+      @race = Race.find(params[:race_id])
+    end
+
     def set_entrants
-      race = Race.find(params[:race_id])
-      @entrants = race.entrants
+      @entrants = @race.entrants
     end
 
     def set_result
-      @result = Race.find(params[:race_id]).entrants.where(id: params[:id]).first
+      @result = @race.entrants.where(id: params[:id]).first
     end
   end
 end
