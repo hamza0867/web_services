@@ -3,18 +3,6 @@ module Api
   class RacesController < ApplicationController
     before_action :set_race, only: %i[show update destroy]
 
-    rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
-      render status: :not_found,
-             template: error_template,
-             locals: { msg: "woops: cannot find race[#{params[:id]}]" }
-    end
-
-    rescue_from ActionView::MissingTemplate do |exception|
-      Rails.logger.debug exception
-      render plain: "woops: we do not support that content-type[#{request.accept}]",
-             status: :unsupported_media_type
-    end
-
     # GET /api/races
     def index
       if !request.accept || request.accept == '*/*'
@@ -37,8 +25,12 @@ module Api
     # POST /api/races
     def create
       if !request.accept || request.accept == '*/*'
-        render plain: (params[:race][:name]).to_s, status: :ok,\
-               content_type: 'text/plain'
+        if params[:race] && params[:race][:name]
+          render plain: (params[:race][:name]).to_s, status: :ok,\
+                 content_type: 'text/plain'
+        else
+          render plain: :nothing, status: :ok
+        end
       else
         @race = Race.new(race_params)
         if @race.save
@@ -60,10 +52,21 @@ module Api
       render nothing: true, status: :no_content
     end
 
+    rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
+      render status: :not_found,
+             template: error_template,
+             locals: { msg: "woops: cannot find race[#{params[:id]}]" }
+    end
+
+    rescue_from ActionView::MissingTemplate do |_exception|
+      render plain: "woops: we do not support that content-type[#{request.accept}]",
+             status: :unsupported_media_type
+    end
+
     private
 
     def set_race
-      @race = Race.find(params[:id])
+      @race = Race.find(params[:id]) unless !request.accept || request.accept == '*/*'
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

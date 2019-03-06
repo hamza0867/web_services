@@ -53,18 +53,29 @@ module Api
       render json: entrant, status: 200
     end
 
+    rescue_from Mongoid::Errors::DocumentNotFound do |_exception|
+      render status: :not_found,
+             template: error_template,
+             locals: { msg: "woops: cannot find race[#{params[:id]}]" }
+    end
+
+    rescue_from ActionView::MissingTemplate do |_exception|
+      render plain: "woops: we do not support that content-type[#{request.accept}]",
+             status: :unsupported_media_type
+    end
+
     private
 
     def set_race
-      @race = Race.find(params[:race_id])
+      @race = Race.find(params[:race_id]) unless !request.accept || request.accept == '*/*'
     end
 
     def set_entrants
-      @entrants = @race.entrants
+      @entrants = @race.entrants unless !request.accept || request.accept == '*/*'
     end
 
     def set_result
-      @result = @race.entrants.where(id: params[:id]).first
+      @result = @race.entrants.where(id: params[:id]).first unless !request.accept || request.accept == '*/*'
     end
   end
 end
